@@ -1,0 +1,11 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "moboxer"
+version = "0.1"
+dependencies = ["torch", "torchvision"]
+
+#[tool.setuptools]
+#script-files = ["moboxer/scripts/script.py",
