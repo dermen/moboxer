@@ -17,7 +17,7 @@ def load_conf(fname):
 
     res_infoA = get_res_ids_and_names("protA")
     res_infoB = get_res_ids_and_names("protB")
-    assert res_infoB== res_infoB
+    assert res_infoA== res_infoB
 
     res_ids, res_names= zip(*res_infoA)
     all_xyz_a = []
@@ -29,6 +29,7 @@ def load_conf(fname):
         all_xyz_a.append(xyz_a)
         all_xyz_b.append(xyz_b)
     all_xyz_ab = np.array( [all_xyz_a, all_xyz_b])[:,:,0]
+    cmd.delete("all")  # critical!
     return all_xyz_ab
 
 
