@@ -1,0 +1,7 @@
+# Data and output files
+data/
+output/
+
+# Common temporary files
+*.pyc
+__pycache__/

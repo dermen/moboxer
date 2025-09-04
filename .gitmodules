@@ -1,0 +1,3 @@
+[submodule "scripts/holton_scripts"]
+	path = scripts/holton_scripts
+	url = https://github.com/fraser-lab/holton_scripts.git
