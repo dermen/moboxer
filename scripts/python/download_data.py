@@ -1,5 +1,6 @@
 
 import os
+import stat
 import requests
 
 
@@ -100,6 +101,10 @@ def main():
     }
     script_dest = os.path.join(this_dir, "../../scripts/")
     download_files(scripts_to_download, script_dest)
+    # make the untangle script executable
+    script_file = os.path.join(script_dest, "untangle_score.csh")
+    st = os.stat(script_file)
+    os.chmod(script_file, st.st_mode | stat.S_IEXEC)
 
 
 if __name__ == "__main__":
