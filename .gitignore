@@ -1,6 +1,7 @@
 # Data and output files
 data/
 output/
+scripts/untangle_score.csh
 
 # Common temporary files
 *.pyc

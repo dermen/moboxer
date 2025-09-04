@@ -78,6 +78,7 @@ def main():
     }
     this_dir = os.path.dirname(__file__)
     dest_dir = os.path.join(this_dir, "../../data")
+    os.makedirs(dest_dir, exist_ok=True)
     print(dest_dir)
 
     # Run the download function
