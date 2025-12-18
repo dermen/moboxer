@@ -1,5 +1,4 @@
 import sys
-import os
 from pymol import cmd
 
 # Check for the correct number of command-line arguments

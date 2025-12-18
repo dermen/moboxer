@@ -11,7 +11,13 @@ INPUT_EFF="data/phenix_settings.eff"
 REF_PDB="data/ref_no_alt.pdb"
 WATER_PDB="data/ground_truth_water.pdb"
 
-OUTPUT_DIR="output/all_piece"
+# where to write outputs
+OUTPUT_DIR=$1
+# number of trials to simulate
+ntrials=$2
+# set as optionally 'srun -c2' or 'mpirun -n 10' etc, defaults to empty string
+MPIRUN="${3:-}"
+
 JIGGLE_AWK_SCRIPT="$PROJECT_ROOT/scripts/holton_scripts/fuzzymask/jigglepdb.awk"
 JIGGLE_PY_SCRIPT="$PROJECT_ROOT/scripts/python/pyjiggler.py"
 SCORING_SCRIPT="$PROJECT_ROOT/scripts/untangle_score.csh"
@@ -19,8 +25,9 @@ FULL_WORKER="$PROJECT_ROOT/scripts/bash/worker.sh"
 PYMOL_ADD_CONF="$PROJECT_ROOT/scripts/pymol/add_conf.py"
 PYMOL_ADD_WATER="$PROJECT_ROOT/scripts/pymol/add_gt_water.py"
 TAR_TO_H5="$PROJECT_ROOT/scripts/pymol/tar_to_h5.py"
-MPIRUN="mpirun -n 2"
-ntrials=4
+
+LOGDIR=$OUTPUT_DIR/worker_logs
+mkdir -p $LOGDIR
 
 echo "Starting master workflow..."
 

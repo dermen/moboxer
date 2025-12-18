@@ -28,14 +28,18 @@ elif [[ -n "${OMPI_COMM_WORLD_RANK}" ]]; then
   size=${OMPI_COMM_WORLD_SIZE}
 else
   # Neither Slurm nor OpenMPI variables are defined
-  echo "Error: Unable to determine process rank and size. This script must be run within a Slurm or OpenMPI environment."
-  exit 1
+  rank=0
+  size=1
+  echo "Unable to determine process rank and size. Setting rank=0 and size=1 (no parallelization)"
+  #exit 1
 fi
 
 echo "Starting full workflow for Rank $rank of $size."
 
 # Create a temporary working directory for this rank
 rank_dir="$output_dir/working_rank_${rank}"
+
+logf=${output_dir}/worker_logs/${rank}.logs
 
 count=0
 for ((count=0; count<$Ntrials; count++)); do
@@ -79,9 +83,14 @@ for ((count=0; count<$Ntrials; count++)); do
         # show the phenix command:
         command_string=$(printf "%s " "${command_array[@]}")
         printf "%s\n" "$command_string"
+    {
+        echo "=========================================================="
+        echo "START TIME: $(date)"
+        echo "RANK: $rank"
+        echo "----------------------------------------------------------"
         # Actually run the command:
-        "${command_array[@]}" > /dev/null
-
+        "${command_array[@]}"
+    } >> ${logf} 2>&1
         #Score the refined model
         cd "$temp_working_dir/refined/"
         refined_pdb=$(basename ${refine_prefix})_001.pdb
