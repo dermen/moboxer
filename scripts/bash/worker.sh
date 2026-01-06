@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Exit immediately if a command exits with a non-zero status.
-set -e
+#set -e
 
 # Arguments passed from the main script
 output_dir=$1     # Main output directory
@@ -22,14 +22,20 @@ if [[ -n "${SLURM_PROCID}" ]]; then
   # Slurm environment
   rank=${SLURM_PROCID}
   size=${SLURM_NPROCS}
+  local_rank=${SLURM_LOCALID}
+  using_mpi=1
 elif [[ -n "${OMPI_COMM_WORLD_RANK}" ]]; then
   # OpenMPI or other environments
   rank=${OMPI_COMM_WORLD_RANK}
   size=${OMPI_COMM_WORLD_SIZE}
+  local_rank=${OMPI_COMM_WORLD_RANK}
+  using_mpi=1
 else
   # Neither Slurm nor OpenMPI variables are defined
   rank=0
+  local_rank=0
   size=1
+  using_mpi=0
   echo "Unable to determine process rank and size. Setting rank=0 and size=1 (no parallelization)"
   #exit 1
 fi
@@ -40,6 +46,17 @@ echo "Starting full workflow for Rank $rank of $size."
 rank_dir="$output_dir/working_rank_${rank}"
 
 logf=${output_dir}/worker_logs/${rank}.logs
+
+if [[ $rank -eq 0 ]]; then
+    echo "Root rank: printing to terminal to to $logf"
+    exec > >(tee -a $logf) 2>&1
+elif [[ ${local_rank} -eq 0 ]]; then
+    echo "Rank $rank: Node leader: redirecting stdout to $logf"
+    exec > $logf 2>&1 
+else
+    echo "Rank $rank: redirecting stdout to dev null"
+    exec > /dev/null 2>&1
+fi
 
 count=0
 for ((count=0; count<$Ntrials; count++)); do
@@ -83,17 +100,17 @@ for ((count=0; count<$Ntrials; count++)); do
         # show the phenix command:
         command_string=$(printf "%s " "${command_array[@]}")
         printf "%s\n" "$command_string"
-    {
         echo "=========================================================="
         echo "START TIME: $(date)"
         echo "RANK: $rank"
         echo "----------------------------------------------------------"
         # Actually run the command:
         "${command_array[@]}"
-    } >> ${logf} 2>&1
+
         #Score the refined model
         cd "$temp_working_dir/refined/"
         refined_pdb=$(basename ${refine_prefix})_001.pdb
+        score_cmd=$(echo "$score_script $refined_pdb") 
         "$score_script" "$refined_pdb" \
             > "score_${count}_base.log" 2>&1
         cd -
